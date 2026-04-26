@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.2] — 2026-04-26
 
 ### Added
-- `--inside` flag: opt-in to write the bundle file inside the input directory (e.g. `mdmirror . ./bundle.md --inside`). Without the flag, a bundle path inside the input is still refused for safety. With it, the bundle path is auto-added to the skip list so re-runs don't include the previous bundle in the new one.
+- `-i` / `--inside` flag: write the bundle **inside** the input directory instead of as a sibling. `mdmirror -i .` from a folder writes `./<folder-name>.claude.md` right where you are. The bundle path is auto-skipped on re-runs so it never includes itself. Without `-i`, an explicit bundle path inside the input is still refused for safety.
 
 ## [0.2.1] — 2026-04-26
 

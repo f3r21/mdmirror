@@ -41,6 +41,7 @@ def _build_parser() -> argparse.ArgumentParser:
         epilog=(
             "examples:\n"
             "  mdmirror repo                  # -> ./repo.claude.md\n"
+            "  mdmirror -i .                  # -> ./<cwd>.claude.md (inside)\n"
             "  mdmirror repo --stdout | pbcopy  # paste-ready clipboard\n"
             "  mdmirror repo --tree           # -> ./repo_md/ (one .md per file)\n"
             "  mdmirror repo out --tree       # -> ./out/\n"
@@ -70,8 +71,8 @@ def _build_parser() -> argparse.ArgumentParser:
         "-i",
         "--inside",
         action="store_true",
-        help="allow the bundle to live inside the input dir; "
-        "auto-skipped on re-runs so it doesn't include itself",
+        help="write the bundle INSIDE the input dir instead of as a sibling. "
+        "Auto-skipped on re-runs so it doesn't include itself.",
     )
     p.add_argument("--overwrite", action="store_true", help="overwrite existing output files")
     p.add_argument("--dry-run", action="store_true", help="report planned actions, write nothing")
@@ -142,6 +143,9 @@ def _resolve_config(args: argparse.Namespace) -> MirrorConfig:
                 raise _CLIError("--stdout writes to stdout; do not pass an output path")
         elif args.output is not None:
             bundle_path = args.output.expanduser().resolve()
+        elif args.inside:
+            # -i flips the default to: write the bundle INSIDE the input dir.
+            bundle_path = input_dir / f"{input_dir.name}.claude.md"
         else:
             bundle_path = input_dir.parent / f"{input_dir.name}.claude.md"
 
