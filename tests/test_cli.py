@@ -78,6 +78,35 @@ def test_refuses_tree_output_inside_input(sample_tree: Path) -> None:
     assert rc == 2
 
 
+def test_bundle_inside_input_refused_without_inside_flag(sample_tree: Path) -> None:
+    """Default refuses bundle inside input — keeps the safety net."""
+    bundle = sample_tree / "bundle.md"
+    rc = main([str(sample_tree), str(bundle)])
+    assert rc == 2
+
+
+def test_inside_flag_allows_bundle_inside_input(sample_tree: Path) -> None:
+    """`mdmirror . ./bundle.md --inside` is the opt-in for inside writes."""
+    bundle = sample_tree / "bundle.md"
+    rc = main([str(sample_tree), str(bundle), "--inside"])
+    assert rc == 0
+    assert bundle.is_file()
+    text = bundle.read_text(encoding="utf-8")
+    assert "src/main.py" in text
+
+
+def test_inside_flag_auto_skips_bundle_on_rerun(sample_tree: Path) -> None:
+    """With --inside, a re-run does not include the previous bundle."""
+    bundle = sample_tree / "ctx.md"
+    main([str(sample_tree), str(bundle), "--inside"])
+    first_size = bundle.stat().st_size
+    main([str(sample_tree), str(bundle), "--inside", "--overwrite"])
+    second_size = bundle.stat().st_size
+    # Without the auto-skip the second bundle would include the first
+    # bundle's content, roughly doubling its size.
+    assert second_size < first_size * 1.2
+
+
 def test_stdout_writes_bundle_to_stdout(sample_tree: Path, capsys) -> None:
     rc = main([str(sample_tree), "--stdout"])
     assert rc == 0

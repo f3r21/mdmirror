@@ -66,6 +66,13 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--stdout", action="store_true", help="stream the bundle to stdout (great for `| pbcopy`)"
     )
+    p.add_argument(
+        "-i",
+        "--inside",
+        action="store_true",
+        help="allow the bundle to live inside the input dir; "
+        "auto-skipped on re-runs so it doesn't include itself",
+    )
     p.add_argument("--overwrite", action="store_true", help="overwrite existing output files")
     p.add_argument("--dry-run", action="store_true", help="report planned actions, write nothing")
     p.add_argument("--workers", type=int, default=1, help="parallel worker processes (default: 1)")
@@ -143,11 +150,20 @@ def _resolve_config(args: argparse.Namespace) -> MirrorConfig:
             f"output dir {output_dir} is inside input dir {input_dir}; "
             "would recurse into its own output"
         )
+
+    skip_patterns = list(args.skip_pattern)
     if bundle_path is not None and output_is_inside_input(input_dir, bundle_path.parent):
-        raise _CLIError(
-            f"bundle path {bundle_path} is inside input dir {input_dir}; "
-            "move it elsewhere or add it to --skip-pattern"
-        )
+        if not args.inside:
+            raise _CLIError(
+                f"bundle path {bundle_path} is inside input dir {input_dir}; "
+                "pass --inside to allow this, or move the bundle elsewhere"
+            )
+        # User opted in: auto-skip the bundle so re-runs don't include it.
+        try:
+            rel = bundle_path.resolve().relative_to(input_dir).as_posix()
+            skip_patterns.append(rel)
+        except ValueError:
+            pass
 
     quiet = args.quiet or to_stdout  # don't pollute pipes with INFO logs
     return MirrorConfig(
@@ -158,7 +174,7 @@ def _resolve_config(args: argparse.Namespace) -> MirrorConfig:
         overwrite=args.overwrite,
         dry_run=args.dry_run,
         workers=max(1, args.workers),
-        skip_patterns=tuple(args.skip_pattern),
+        skip_patterns=tuple(skip_patterns),
         include_hidden=args.include_hidden,
         follow_symlinks=args.follow_symlinks,
         use_default_ignore=not args.no_default_ignore,
