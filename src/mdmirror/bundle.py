@@ -43,7 +43,7 @@ def write_bundle(
 ) -> int:
     """Concatenate all successful results into one .md file. Returns chars written."""
     bundle_path.parent.mkdir(parents=True, exist_ok=True)
-    with bundle_path.open("w", encoding="utf-8") as fh:
+    with bundle_path.open("w", encoding="utf-8", newline="\n") as fh:
         return write_bundle_to(fh, results, input_root=input_root, tree_summary=tree_summary)
 
 

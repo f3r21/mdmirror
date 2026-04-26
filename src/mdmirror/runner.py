@@ -126,7 +126,7 @@ def _record(
         log.debug("skip-existing %s", dst)
         return
     dst.parent.mkdir(parents=True, exist_ok=True)
-    dst.write_text(result.content, encoding="utf-8")
+    dst.write_text(result.content, encoding="utf-8", newline="\n")
     log.debug("wrote %s", dst)
 
 
