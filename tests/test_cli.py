@@ -9,7 +9,7 @@ def test_default_writes_claude_bundle(sample_tree: Path, tmp_path: Path, monkeyp
     assert rc == 0
     bundle = tmp_path / f"{sample_tree.name}.claude.md"
     assert bundle.is_file()
-    text = bundle.read_text()
+    text = bundle.read_text(encoding="utf-8")
     assert "Context bundle" in text
     assert "src/main.py" in text
     assert "def hi" in text
@@ -22,7 +22,7 @@ def test_default_with_explicit_bundle_path(sample_tree: Path, tmp_path: Path) ->
     rc = main([str(sample_tree), str(bundle)])
     assert rc == 0
     assert bundle.is_file()
-    assert "def hi" in bundle.read_text()
+    assert "def hi" in bundle.read_text(encoding="utf-8")
 
 
 def test_tree_flag_writes_mirror_default_path(sample_tree: Path) -> None:

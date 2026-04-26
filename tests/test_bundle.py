@@ -24,7 +24,7 @@ def test_bundle_concatenates_in_order(tmp_path: Path) -> None:
         ),
     ]
     written = write_bundle(bundle, results, input_root=tmp_path, tree_summary="a.py\nb.py\nc.py")
-    text = bundle.read_text()
+    text = bundle.read_text(encoding="utf-8")
     assert written == len(text)
     assert "print(1)" in text
     assert "print(2)" in text
