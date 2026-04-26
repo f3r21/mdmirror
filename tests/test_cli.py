@@ -17,6 +17,18 @@ def test_default_writes_claude_bundle(sample_tree: Path, tmp_path: Path, monkeyp
     assert not (sample_tree.parent / f"{sample_tree.name}_md").exists()
 
 
+def test_default_dot_from_inside_folder(sample_tree: Path, monkeypatch) -> None:
+    """`mdmirror .` from inside a folder writes <name>.claude.md as a sibling."""
+    monkeypatch.chdir(sample_tree)
+    rc = main(["."])
+    assert rc == 0
+    bundle = sample_tree.parent / f"{sample_tree.name}.claude.md"
+    assert bundle.is_file()
+    assert "src/main.py" in bundle.read_text(encoding="utf-8")
+    # Bundle must NOT be inside the input dir.
+    assert not (sample_tree / f"{sample_tree.name}.claude.md").exists()
+
+
 def test_default_with_explicit_bundle_path(sample_tree: Path, tmp_path: Path) -> None:
     bundle = tmp_path / "ctx.md"
     rc = main([str(sample_tree), str(bundle)])

@@ -127,7 +127,7 @@ def _resolve_config(args: argparse.Namespace) -> MirrorConfig:
             else input_dir.parent / f"{input_dir.name}_md"
         )
         if args.bundle:
-            bundle_path = Path.cwd() / f"{input_dir.name}.claude.md"
+            bundle_path = input_dir.parent / f"{input_dir.name}.claude.md"
     else:
         # Default mode: bundle. Positional output is the bundle file.
         if to_stdout:
@@ -136,7 +136,7 @@ def _resolve_config(args: argparse.Namespace) -> MirrorConfig:
         elif args.output is not None:
             bundle_path = args.output.expanduser().resolve()
         else:
-            bundle_path = Path.cwd() / f"{input_dir.name}.claude.md"
+            bundle_path = input_dir.parent / f"{input_dir.name}.claude.md"
 
     if output_dir is not None and output_is_inside_input(input_dir, output_dir):
         raise _CLIError(

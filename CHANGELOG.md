@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-04-26
+
+### Fixed
+- `mdmirror .` from inside a folder no longer fails with "bundle path is inside input dir". The default bundle location is now a sibling of the input (`<input>.parent / <name>.claude.md`), matching the tree-mode default. Output of `mdmirror foo` from `~` is unchanged: `~/foo.claude.md`.
+
 ## [0.2.0] — 2026-04-26
 
 ### Added
